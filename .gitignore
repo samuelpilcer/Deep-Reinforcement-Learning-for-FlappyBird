@@ -112,3 +112,6 @@ callbacks/*
 .idea/
 Supprimerait callbacks/
 Supprimerait dqn_flappy_log_raw_images.json
+
+alife
+report

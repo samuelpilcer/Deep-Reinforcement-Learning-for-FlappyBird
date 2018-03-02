@@ -6,7 +6,7 @@ import numpy as np
 from rl.callbacks import FileLogger, ModelIntervalCheckpoint
 
 
-from define_model import get_cnn_model, get_agent_from_model
+from define_model import *
 from constants import *
 import post_process
 
@@ -20,7 +20,8 @@ obs = env.reset()
 
 
 # Define the Neural Net model and the agent
-model = get_cnn_model(input_shape=(WINDOW_LENGTH,) + SHRUNKEN_SHAPE, nb_actions=nb_actions)
+# model = get_cnn_model(input_shape=(WINDOW_LENGTH,) + SHRUNKEN_SHAPE, nb_actions=nb_actions)
+model = load_model(filename='models/model_preprocessed_images.')
 dqn = get_agent_from_model(model, nb_actions, SHRUNKEN_SHAPE)
 
 callbacks = [ModelIntervalCheckpoint(CHECKPOINT_WEIGHTS_FILENAME, interval=100000)]

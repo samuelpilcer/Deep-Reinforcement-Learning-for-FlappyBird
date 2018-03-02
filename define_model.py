@@ -1,4 +1,4 @@
-from keras.layers import Dense, Flatten, Conv2D, Permute
+from keras.layers import Dense, Flatten, Conv2D, Permute, Conv2DTranspose
 from keras.models import Sequential
 from keras.models import model_from_json
 from keras.optimizers import Adam
@@ -41,3 +41,12 @@ def get_agent_from_model(model, nb_actions, input_shape):
                    nb_steps_warmup=50000, gamma=.99, target_model_update=10000, train_interval=4, delta_clip=1.)
     dqn.compile(Adam(lr=.00025), metrics=['mae'])
     return dqn
+
+
+def adapt_model_to_alife(model, input_shape=(3, 3)):
+    complete_model = Sequential()
+    complete_model.add(Conv2DTranspose(4, (SHRUNKEN_SHAPE[0], SHRUNKEN_SHAPE[1] - input_shape[0] + 1)
+                                       , input_shape=(1,)+input_shape, padding='valid'))
+    complete_model.add(Permute((3, 1, 2)))
+    complete_model.add(model)
+    return model
