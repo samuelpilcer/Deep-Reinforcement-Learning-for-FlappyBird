@@ -1,4 +1,4 @@
-from keras.layers import Dense, Flatten, Conv2D, Permute, Conv2DTranspose
+from keras.layers import Dense, Flatten, Conv2D, Permute, Conv2DTranspose, Input, concatenate, Reshape
 from keras.models import Sequential
 from keras.models import model_from_json
 from keras.optimizers import Adam
@@ -43,10 +43,25 @@ def get_agent_from_model(model, nb_actions, input_shape):
     return dqn
 
 
-def adapt_model_to_alife(model, input_shape=(3, 3)):
-    complete_model = Sequential()
-    complete_model.add(Conv2DTranspose(4, (SHRUNKEN_SHAPE[0], SHRUNKEN_SHAPE[1] - input_shape[0] + 1)
-                                       , input_shape=(1,)+input_shape, padding='valid'))
-    complete_model.add(Permute((3, 1, 2)))
-    complete_model.add(model)
-    return model
+def adapt_model_to_alife(model, input_shape=(10, 0), vision_shape=(1, 3, 3), energy_shape=(1, 1, 1)):
+    bug_input = Input(shape=input_shape)
+    vision_in = Reshape(input_shape=(input_shape[0] - 1,), target_shape=vision_shape)(bug_input[:, :-1])
+    energy_in = Reshape(input_shape=(1,), target_shape=energy_shape)(bug_input[:, -1])
+
+    vision_out = Conv2DTranspose(4, (SHRUNKEN_SHAPE[0], SHRUNKEN_SHAPE[1] - vision_shape[0] + 1),
+                                 input_shape=(1,) + vision_shape, padding='valid')(vision_in)
+    vision_out = Permute((3, 1, 2))(vision_out)
+
+    energy_out = Conv2DTranspose(4, (SHRUNKEN_SHAPE[0], SHRUNKEN_SHAPE[1] - energy_shape[0] + 1),
+                                 input_shape=(1,) + energy_shape, padding='valid')(energy_in)
+    energy_out = Permute((3, 1, 2))(energy_out)
+
+    merged_tensor = concatenate([vision_out, energy_out], axis=-1)
+
+    complete_model = model(merged_tensor)
+
+    return complete_model
+
+
+
+
