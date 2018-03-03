@@ -1,5 +1,5 @@
-from keras.layers import Dense, Flatten, Conv2D, Permute, Conv2DTranspose, Input, concatenate, Reshape
-from keras.models import Sequential
+from keras.layers import Dense, Flatten, Conv2D, Permute, Conv2DTranspose, Input, concatenate, Reshape, Cropping1D
+from keras.models import Sequential, Model
 from keras.models import model_from_json
 from keras.optimizers import Adam
 from rl.agents.dqn import DQNAgent
@@ -45,23 +45,31 @@ def get_agent_from_model(model, nb_actions, input_shape):
 
 def adapt_model_to_alife(model, input_shape=(10,), vision_shape=(1, 3, 3), energy_shape=(1, 1, 1)):
     bug_input = Input(shape=input_shape)
-    vision_in = Reshape(input_shape=(input_shape[0] - 1,), target_shape=vision_shape)(bug_input[:, :-1])
-    energy_in = Reshape(input_shape=(1,), target_shape=eneractgy_shape)(bug_input[:, -1])
 
-    vision_out = Conv2DTranspose(4, (SHRUNKEN_SHAPE[0], SHRUNKEN_SHAPE[1] - vision_shape[0] + 1),
-                                 input_shape=(1,) + vision_shape, padding='valid')(vision_in)
-    vision_out = Permute((3, 1, 2))(vision_out)
+    model_vision = Sequential()
+    model_vision.add(Cropping1D(cropping=(0, 1), input_shape=input_shape))
+    model_vision.add(Reshape(target_shape=vision_shape))
+    model_vision.add(Conv2DTranspose(4, (SHRUNKEN_SHAPE[0], int(SHRUNKEN_SHAPE[1] / 2 - 1)),
+                                     input_shape=vision_shape, padding='valid'))
+    model_vision.add(Permute((3, 1, 2)))
+    vision_out = model_vision(bug_input)
 
-    energy_out = Conv2DTranspose(4, (SHRUNKEN_SHAPE[0], SHRUNKEN_SHAPE[1] - energy_shape[0] + 1),
-                                 input_shape=(1,) + energy_shape, padding='valid')(energy_in)
-    energy_out = Permute((3, 1, 2))(energy_out)
+    model_energy = Sequential()
+    model_energy.add(Cropping1D(cropping=(9, 0), input_shape=input_shape))
+    model_energy.add(Reshape(target_shape=energy_shape))
+    model_energy.add(Conv2DTranspose(4, (SHRUNKEN_SHAPE[0], int(SHRUNKEN_SHAPE[1] / 2 - 1)),
+                                     input_shape=energy_shape, padding='valid'))
+    model_energy.add(Permute((3, 1, 2)))
+    energy_out = model_energy(bug_input)
 
     merged_tensor = concatenate([vision_out, energy_out], axis=-1)
 
-    complete_model = model(merged_tensor)
+    model.pop()
+    model.add(Reshape((1, 512, 1)))
+    model.add(Conv2D(int(21 / SPEED_STEP), (1, 512 - int(360 / ANGLE_STEP) + 1), name='conv_2d_alife'))
+
+    output = model(merged_tensor)
+
+    complete_model = Model(inputs=bug_input, outputs=output)
 
     return complete_model
-
-
-
-

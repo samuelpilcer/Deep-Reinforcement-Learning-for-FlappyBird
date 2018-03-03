@@ -1,10 +1,11 @@
-from alife.alife.rl.agent import Agent
 from numpy import *
+
+from rl.agents.dqn import DQNAgent
 from define_model import *
+from constants import *
 
 
-class DQNCustomAgent(Agent):
-
+class DQNCustomAgent(DQNAgent):
     def __init__(self, obs_space, act_space, gen=1):
         """
             Init.
@@ -24,15 +25,17 @@ class DQNCustomAgent(Agent):
         self.obs_space = obs_space
         self.act_space = act_space
 
-        pre_trained_model = load_model('models/model_preprocessed_images.')
-        complete_model = adapt_model_to_alife(pre_trained_model, input_shape=obs_space.shape)
+        if gen == 1:
+            pre_trained_model = load_model('models/model_preprocessed_images.')
+            complete_model = adapt_model_to_alife(pre_trained_model, input_shape=obs_space.shape)
 
         self.model = complete_model
-        self.dqn = get_agent_from_model(self.model, act_space.shape[0], SHRUNKEN_SHAPE)
+        # self.dqn = get_agent_from_model(self.model, act_space.shape[0], SHRUNKEN_SHAPE)
+        self.generation = gen
 
     def __str__(self):
         ''' Return a string representation (e.g., a label) for this agent '''
-        return ("Evolver: Gen %d" % (self.generation))
+        return "Evolver: Gen %d" % (self.generation)
 
     def act(self, obs, reward, done=False):
         """
@@ -59,7 +62,7 @@ class DQNCustomAgent(Agent):
         self.t = (self.t + 1) % len(self.log)
 
         # No learning, just a simple linear reflex,
-        a = dot(obs, self.W) + self.w
+        self.model.fit()
         # ... and clip to within the bounds of action the space.
         a[0] = clip(a[0], self.act_space.low[0], self.act_space.high[0])
         a[1] = clip(a[1], self.act_space.low[1], self.act_space.high[1])
@@ -98,5 +101,3 @@ class DQNCustomAgent(Agent):
         fname = log_path + ("/%d-%s-G%d.log" % (obj_ID, self.__class__.__name__, self.generation))
         savetxt(fname, self.log[0:self.t, :], fmt='%4.3f', delimiter=',', header=','.join(header), comments='')
         print("Saved log to '%s'." % fname)
-
-

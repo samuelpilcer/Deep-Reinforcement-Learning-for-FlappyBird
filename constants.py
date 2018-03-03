@@ -21,3 +21,5 @@ if PREPROCESS:
     MODEL_WEIGHTS_FILENAME = "models/model_preprocessed_images.h5"
 
 
+SPEED_STEP = 1
+ANGLE_STEP = 10
