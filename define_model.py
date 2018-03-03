@@ -43,10 +43,10 @@ def get_agent_from_model(model, nb_actions, input_shape):
     return dqn
 
 
-def adapt_model_to_alife(model, input_shape=(10, 0), vision_shape=(1, 3, 3), energy_shape=(1, 1, 1)):
+def adapt_model_to_alife(model, input_shape=(10,), vision_shape=(1, 3, 3), energy_shape=(1, 1, 1)):
     bug_input = Input(shape=input_shape)
     vision_in = Reshape(input_shape=(input_shape[0] - 1,), target_shape=vision_shape)(bug_input[:, :-1])
-    energy_in = Reshape(input_shape=(1,), target_shape=energy_shape)(bug_input[:, -1])
+    energy_in = Reshape(input_shape=(1,), target_shape=eneractgy_shape)(bug_input[:, -1])
 
     vision_out = Conv2DTranspose(4, (SHRUNKEN_SHAPE[0], SHRUNKEN_SHAPE[1] - vision_shape[0] + 1),
                                  input_shape=(1,) + vision_shape, padding='valid')(vision_in)

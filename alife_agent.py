@@ -23,8 +23,12 @@ class DQNCustomAgent(Agent):
         """
         self.obs_space = obs_space
         self.act_space = act_space
-        model = load_model('models/model_preprocessed_images.')
-        complete_model = adapt_model_to_alife(model, input_shape=obs_space.shape)
+
+        pre_trained_model = load_model('models/model_preprocessed_images.')
+        complete_model = adapt_model_to_alife(pre_trained_model, input_shape=obs_space.shape)
+
+        self.model = complete_model
+        self.dqn = get_agent_from_model(self.model, act_space.shape[0], SHRUNKEN_SHAPE)
 
     def __str__(self):
         ''' Return a string representation (e.g., a label) for this agent '''
