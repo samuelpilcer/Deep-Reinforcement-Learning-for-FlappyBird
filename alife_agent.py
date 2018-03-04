@@ -8,7 +8,7 @@ from define_model import *
 
 
 class DQNCustomAgent(Agent):
-    def __init__(self, obs_space, act_space, gen=1, weights=None):
+    def __init__(self, obs_space, act_space, gen=1, weights=None, log=None, log_complete=None):
         """
             Init.
 
@@ -31,16 +31,21 @@ class DQNCustomAgent(Agent):
         pre_trained_model = load_model('models/model_preprocessed_images.')
         complete_model = adapt_model_to_alife(pre_trained_model, input_shape=(obs_space.shape[0], 1))
         self.model = complete_model
-        if gen > 1:
-            self.model.set_weights(weights)
-
         self.model.compile(Adam(lr=LEARNING_RATE), loss='mean_squared_error', metrics=['mae'])
 
         self.generation = gen
         self.eps = EPS_MAX
+
         self.log = np.zeros((MEMORY, self.obs_shape + 3))
+        self.log_complete = False
+
         self.t = 0
         self.to_fit = False
+
+        if gen > 1:
+            self.model.set_weights(weights)
+            self.log = log
+            self.log_complete = log_complete
 
     def __str__(self):
         ''' Return a string representation (e.g., a label) for this agent '''
@@ -69,7 +74,10 @@ class DQNCustomAgent(Agent):
         # Save some info to a log
         self.log_state(obs, reward)
         if self.to_fit:
-            self.fit_model()
+            if self.log_complete:
+                self.fit_model(idx_max=MEMORY - 1)
+            else:
+                self.fit_model(idx_max=self.t - 1)
             self.to_fit = False
 
         # Choose the best action to do with an Epsilon Greedy Policy
@@ -81,6 +89,8 @@ class DQNCustomAgent(Agent):
 
         # Save the action chosen
         if self.t == MEMORY - 1:
+            self.log_complete = True
+        if self.t % FIT_INTERVAL == 0 and (self.t > 0 or self.log_complete):
             self.to_fit = True
         self.t = (self.t + 1) % MEMORY
 
@@ -114,22 +124,22 @@ class DQNCustomAgent(Agent):
         a[1] = np.clip(a[1], self.act_space.low[1], self.act_space.high[1])
         return a
 
-    def get_minibatch(self):
-        idx_list = np.random.randint(MEMORY, size=BATCH_SIZE)
+    def get_minibatch(self, idx_max):
+        idx_list = np.random.randint(idx_max, size=BATCH_SIZE)
         batch = []
         for idx in idx_list:
             state = np.array(self.log[idx, :self.obs_shape]).reshape(1, self.obs_shape, 1)
             action = self.log[idx, self.obs_shape:-1]
             reward = self.log[idx, -1]
-            if idx == MEMORY - 1:
+            if idx == idx_max:
                 next_state = np.array(self.log[0, :self.obs_shape]).reshape(1, self.obs_shape, 1)
             else:
                 next_state = np.array(self.log[idx + 1, :self.obs_shape]).reshape(1, self.obs_shape, 1)
             batch.append((state, action, reward, next_state))
         return batch
 
-    def fit_model(self):
-        minibatch = self.get_minibatch()
+    def fit_model(self, idx_max):
+        minibatch = self.get_minibatch(idx_max)
         for (state, action, reward, next_state) in minibatch:
             target = reward + GAMMA * np.amax(self.model.predict(next_state))
             target_f = self.model.predict(state)
