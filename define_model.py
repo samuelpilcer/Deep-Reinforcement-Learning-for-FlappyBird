@@ -38,7 +38,8 @@ def get_agent_from_model(model, nb_actions, input_shape):
     policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=EPS_MAX, value_min=EPS_MIN,
                                   value_test=EPS_TEST, nb_steps=1000000)
     dqn = DQNAgent(model=model, nb_actions=nb_actions, policy=policy, memory=memory, processor=processor,
-                   nb_steps_warmup=50000, gamma=GAMMA, target_model_update=10000, train_interval=4, delta_clip=1.)
+                   batch_size=BATCH_SIZE, nb_steps_warmup=50000, gamma=GAMMA, target_model_update=10000,
+                   train_interval=4, delta_clip=1.)
     dqn.compile(Adam(lr=LEARNING_RATE), metrics=['mae'])
     return dqn
 

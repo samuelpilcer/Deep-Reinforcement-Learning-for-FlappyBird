@@ -1,6 +1,6 @@
-from numpy import *
+import numpy as np
 from math import pi
-from random import random, randint
+import random
 
 from alife.rl.agent import Agent
 from define_model import *
@@ -25,17 +25,17 @@ class DQNCustomAgent(Agent):
         """
         self.obs_space = obs_space
         self.act_space = act_space
+        self.obs_shape = self.obs_space.shape[0]
 
         if gen == 1:
             pre_trained_model = load_model('models/model_preprocessed_images.')
             complete_model = adapt_model_to_alife(pre_trained_model, input_shape=(obs_space.shape[0], 1))
 
         self.model = complete_model
-        # self.dqn = get_agent_from_model(self.model, act_space.shape[0], SHRUNKEN_SHAPE)
+
         self.generation = gen
-        self.memory = 100
         self.eps = EPS_MAX
-        self.log = zeros((self.memory, self.obs_space.shape[0] + 3))
+        self.log = np.zeros((MEMORY, self.obs_space.shape[0] + 3))
         self.t = 0
 
     def __str__(self):
@@ -53,6 +53,8 @@ class DQNCustomAgent(Agent):
                 the state at the current time
             reward : float
                 the reward signal at the current time
+            done : boolean
+                is current state a final state
 
             Returns
             -------
@@ -61,42 +63,73 @@ class DQNCustomAgent(Agent):
                 (the action to take)
         """
         # Save some info to a log
-        D = self.obs_space.shape[0]
-        self.log[self.t, 0:D] = obs
-        self.log[self.t, -1] = reward
+        self.log_state(obs, reward)
+        if self.t == MEMORY - 1:
+            self.fit_model()
         self.t = (self.t + 1) % len(self.log)
-        if self.t % len(self.log) == 0:
-            self.model.fit()
 
+
+        # Choose the best action to do with an Epsilon Greedy Policy
         a = self.eps_policy(obs)
-        # ... and clip to within the bounds of action the space.
+
+        # Get the true value of the action (change of ange and speed)
         a = self.get_true_action_value(a)
 
-        # More logging ...
-        self.log[self.t, D:-1] = a
+        # Save the action chosen
+        self.log_action(a)
 
-        # Return
         return a
 
+    def log_state(self, obs, reward):
+        self.log[self.t, 0:self.obs_shape] = obs
+        self.log[self.t, -1] = reward
+        return 0
+
+    def log_action(self, a):
+        self.log[self.t, self.obs_shape:-1] = a
+        return 0
+
     def eps_policy(self, obs):
-        D = self.obs_space.shape[0]
         a = [0, 0]
-        if random() > self.eps:
-            actions = self.model.predict(obs.reshape((1, D, 1))).reshape(ANGLE_SHAPE, SPEED_SHAPE)
-            a = list(unravel_index(argmax(actions), actions.shape))
+        if random.random() > self.eps:
+            actions = self.model.predict(obs.reshape((1, self.obs_shape, 1))).reshape(ANGLE_SHAPE, SPEED_SHAPE)
+            a = list(np.unravel_index(np.argmax(actions), actions.shape))
         else:
-            a[0] = randint(0, ANGLE_SHAPE)
-            a[1] = randint(0, SPEED_SHAPE)
-        self.eps = max(EPS_DECAY * self.eps, EPS_MIN)
+            a[0] = random.randint(0, ANGLE_SHAPE)
+            a[1] = random.randint(0, SPEED_SHAPE)
         return a
 
     def get_true_action_value(self, a):
         a[0] = (a[0] * ANGLE_STEP - 45) * pi / 180.0
-        a[0] = clip(a[0], self.act_space.low[0], self.act_space.high[0])
+        a[0] = np.clip(a[0], self.act_space.low[0], self.act_space.high[0])
 
         a[1] = a[1] * SPEED_STEP - 10
-        a[1] = clip(a[1], self.act_space.low[1], self.act_space.high[1])
+        a[1] = np.clip(a[1], self.act_space.low[1], self.act_space.high[1])
         return a
+
+    def get_minibatch(self):
+        idx_list = np.random.randint(MEMORY, size=BATCH_SIZE)
+        batch = []
+        for idx in idx_list:
+            state = np.array(self.log[idx, :self.obs_shape]).reshape(1, self.obs_shape, 1)
+            action = self.log[idx, self.obs_shape:-1]
+            reward = self.log[idx, -1]
+            if idx == MEMORY - 1:
+                next_state = np.array(self.log[0, :self.obs_shape]).reshape(1, self.obs_shape, 1)
+            else:
+                next_state = np.array(self.log[idx + 1, :self.obs_shape]).reshape(1, self.obs_shape, 1)
+            batch.append((state, action, reward, next_state))
+        return batch
+
+    def fit_model(self):
+        minibatch = self.get_minibatch()
+        for (state, action, reward, next_state) in minibatch:
+            target = reward + GAMMA * np.amax(self.model.predict(next_state))
+            target_f = self.model.predict(state)
+            target_f[action] = target
+            self.model.fit(state, target_f, epochs=1, verbose=0)
+        if self.eps > EPS_MIN:
+            self.eps *= EPS_DECAY
 
     def spawn_copy(self):
         """
