@@ -117,10 +117,10 @@ alife
 report
 
 *.png
-results/*
+results
 
 *.json
-models/*
-dat/*
+models
+dat
 ALife.py
 Supprimerait img/
