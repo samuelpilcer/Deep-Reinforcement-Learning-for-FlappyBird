@@ -1,5 +1,6 @@
 from numpy import *
 from math import pi
+from random import random, randint
 
 from alife.rl.agent import Agent
 from define_model import *
@@ -62,14 +63,19 @@ class DQNCustomAgent(Agent):
         # Save some info to a log
         D = self.obs_space.shape[0]
         self.log[self.t, 0:D] = obs
-        print(obs)
         self.log[self.t, -1] = reward
-        if self.t % len(self.log == 0):
-            self.model.fit()
         self.t = (self.t + 1) % len(self.log)
+        if self.t % len(self.log) == 0:
+            self.model.fit()
 
-        actions = self.model.predict(obs.reshape((1, D, 1))).reshape(ANGLE_SHAPE, SPEED_SHAPE)
-        a = list(unravel_index(argmax(actions), actions.shape))
+        a = [0, 0]
+        if random() > self.eps:
+            actions = self.model.predict(obs.reshape((1, D, 1))).reshape(ANGLE_SHAPE, SPEED_SHAPE)
+            a = list(unravel_index(argmax(actions), actions.shape))
+        else:
+            a[0] = randint(0, ANGLE_SHAPE)
+            a[1] = randint(0, SPEED_SHAPE)
+        self.eps = max(EPS_DECAY*self.eps, EPS_MIN)
         # ... and clip to within the bounds of action the space.
         a[0] = (a[0]*ANGLE_STEP - 45)* pi / 180.0
         a[0] = clip(a[0], self.act_space.low[0], self.act_space.high[0])
