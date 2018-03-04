@@ -8,7 +8,7 @@ from define_model import *
 
 
 class DQNCustomAgent(Agent):
-    def __init__(self, obs_space, act_space, gen=1, complete_model=None):
+    def __init__(self, obs_space, act_space, gen=1, weights=None):
         """
             Init.
 
@@ -28,12 +28,13 @@ class DQNCustomAgent(Agent):
         self.act_space = act_space
         self.obs_shape = self.obs_space.shape[0]
 
-        if gen == 1:
-            pre_trained_model = load_model('models/model_preprocessed_images.')
-            complete_model = adapt_model_to_alife(pre_trained_model, input_shape=(obs_space.shape[0], 1))
-            complete_model.compile(Adam(lr=LEARNING_RATE), loss='mean_squared_error', metrics=['mae'])
-
+        pre_trained_model = load_model('models/model_preprocessed_images.')
+        complete_model = adapt_model_to_alife(pre_trained_model, input_shape=(obs_space.shape[0], 1))
         self.model = complete_model
+        if gen > 1:
+            self.model.set_weights(weights)
+
+        self.model.compile(Adam(lr=LEARNING_RATE), loss='mean_squared_error', metrics=['mae'])
 
         self.generation = gen
         self.eps = EPS_MAX
@@ -146,12 +147,9 @@ class DQNCustomAgent(Agent):
 
             A new copy (child) of this agent, [optionally] based on this one (the parent).
         """
-        b = Evolver(self.obs_space, self.act_space, self.generation + 1)
+        new_agent = DQNCustomAgent(self.obs_space, self.act_space, self.generation + 1, self.model.get_weights())
 
-        # Make a random adjustment to the weight matrix.
-        b.W = (self.W + random.randn(*self.W.shape) * 0.1) * (self.W > 0.0)
-        b.w = b.w + random.randn(self.act_space.shape[0]) * 0.01
-        return b
+        return new_agent
 
     def save(self, bin_path, log_path, obj_ID):
         """
