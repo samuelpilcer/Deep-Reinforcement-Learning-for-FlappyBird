@@ -117,3 +117,10 @@ alife
 report
 
 *.png
+results/*
+
+*.json
+models/*
+dat/*
+ALife.py
+Supprimerait img/
