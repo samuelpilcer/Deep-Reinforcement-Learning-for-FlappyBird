@@ -32,6 +32,7 @@ class DQNCustomAgent(Agent):
         complete_model = adapt_model_to_alife(pre_trained_model, input_shape=(obs_space.shape[0], 1))
         self.model = complete_model
         self.model.compile(Adam(lr=LEARNING_RATE), loss='mean_squared_error', metrics=['mae'])
+        self.q_mask = np.ones((1, 1, ANGLE_ACTION_POSSIBILITIES, SPEED_ACTION_POSSIBILITIES))*np.nan
 
         self.generation = gen
         self.eps = EPS_MAX
@@ -144,13 +145,14 @@ class DQNCustomAgent(Agent):
                                       np.zeros((BATCH_SIZE, 1, ANGLE_ACTION_POSSIBILITIES, SPEED_ACTION_POSSIBILITIES))
         i = 0
         for (state, action, reward, next_state) in minibatch:
+            self.q_mask[:, :, int(action[0]), int(action[1])] = 1
             target = reward + GAMMA * np.amax(self.model.predict(next_state))
-            target_f = self.model.predict(state)
+            target_f = np.multiply(self.model.predict(state), self.q_mask)
             target_f[:, :, int(action[0]), int(action[1])] = target
             state_train[i] = state
             target_f_train[i] = target_f
             i += 1
-        self.model.fit(state, target_f, epochs=1, verbose=1)
+        self.model.fit(state_train, target_f_train, epochs=1, verbose=1)
         if self.eps > EPS_MIN:
             self.eps *= EPS_DECAY
 
@@ -163,7 +165,8 @@ class DQNCustomAgent(Agent):
 
             A new copy (child) of this agent, [optionally] based on this one (the parent).
         """
-        new_agent = DQNCustomAgent(self.obs_space, self.act_space, self.generation + 1, self.model.get_weights())
+        new_agent = DQNCustomAgent(self.obs_space, self.act_space, self.generation + 1, self.model.get_weights(),
+                                   log=self.log, log_complete=self.log_complete)
 
         return new_agent
 
