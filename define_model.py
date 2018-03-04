@@ -67,7 +67,7 @@ def adapt_model_to_alife(model, input_shape=(10, 1), vision_shape=(1, 3, 3), ene
 
     model.pop()
     model.add(Reshape((1, 512, 1)))
-    model.add(Conv2D(SPEED_SHAPE, (1, 512 - ANGLE_SHAPE + 1), name='conv_2d_alife'))
+    model.add(Conv2D(SPEED_ACTION_POSSIBILITIES, (1, 512 - ANGLE_ACTION_POSSIBILITIES + 1), name='conv_2d_alife'))
 
     output = model(merged_tensor)
 

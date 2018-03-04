@@ -1,6 +1,7 @@
-import numpy as np
-from math import pi
 import random
+from math import pi
+
+import numpy as np
 
 from alife.rl.agent import Agent
 from define_model import *
@@ -30,13 +31,15 @@ class DQNCustomAgent(Agent):
         if gen == 1:
             pre_trained_model = load_model('models/model_preprocessed_images.')
             complete_model = adapt_model_to_alife(pre_trained_model, input_shape=(obs_space.shape[0], 1))
+            complete_model.compile(Adam(lr=LEARNING_RATE), loss='mean_squared_error', metrics=['mae'])
 
         self.model = complete_model
 
         self.generation = gen
         self.eps = EPS_MAX
-        self.log = np.zeros((MEMORY, self.obs_space.shape[0] + 3))
+        self.log = np.zeros((MEMORY, self.obs_shape + 3))
         self.t = 0
+        self.to_fit = False
 
     def __str__(self):
         ''' Return a string representation (e.g., a label) for this agent '''
@@ -64,24 +67,26 @@ class DQNCustomAgent(Agent):
         """
         # Save some info to a log
         self.log_state(obs, reward)
-        if self.t == MEMORY - 1:
+        if self.to_fit:
             self.fit_model()
-        self.t = (self.t + 1) % len(self.log)
-
+            self.to_fit = False
 
         # Choose the best action to do with an Epsilon Greedy Policy
         a = self.eps_policy(obs)
+        self.log_action(a)
 
         # Get the true value of the action (change of ange and speed)
-        a = self.get_true_action_value(a)
+        a = self.idx_to_action_value(a)
 
         # Save the action chosen
-        self.log_action(a)
+        if self.t == MEMORY - 1:
+            self.to_fit = True
+        self.t = (self.t + 1) % MEMORY
 
         return a
 
     def log_state(self, obs, reward):
-        self.log[self.t, 0:self.obs_shape] = obs
+        self.log[self.t, :self.obs_shape] = obs
         self.log[self.t, -1] = reward
         return 0
 
@@ -92,14 +97,15 @@ class DQNCustomAgent(Agent):
     def eps_policy(self, obs):
         a = [0, 0]
         if random.random() > self.eps:
-            actions = self.model.predict(obs.reshape((1, self.obs_shape, 1))).reshape(ANGLE_SHAPE, SPEED_SHAPE)
+            actions = self.model.predict(obs.reshape((1, self.obs_shape, 1))). \
+                reshape(ANGLE_ACTION_POSSIBILITIES, SPEED_ACTION_POSSIBILITIES)
             a = list(np.unravel_index(np.argmax(actions), actions.shape))
         else:
-            a[0] = random.randint(0, ANGLE_SHAPE)
-            a[1] = random.randint(0, SPEED_SHAPE)
+            a[0] = random.randint(0, ANGLE_ACTION_POSSIBILITIES - 1)
+            a[1] = random.randint(0, SPEED_ACTION_POSSIBILITIES - 1)
         return a
 
-    def get_true_action_value(self, a):
+    def idx_to_action_value(self, a):
         a[0] = (a[0] * ANGLE_STEP - 45) * pi / 180.0
         a[0] = np.clip(a[0], self.act_space.low[0], self.act_space.high[0])
 
@@ -126,7 +132,7 @@ class DQNCustomAgent(Agent):
         for (state, action, reward, next_state) in minibatch:
             target = reward + GAMMA * np.amax(self.model.predict(next_state))
             target_f = self.model.predict(state)
-            target_f[action] = target
+            target_f[:, :, int(action[0]), int(action[1])] = target
             self.model.fit(state, target_f, epochs=1, verbose=0)
         if self.eps > EPS_MIN:
             self.eps *= EPS_DECAY
