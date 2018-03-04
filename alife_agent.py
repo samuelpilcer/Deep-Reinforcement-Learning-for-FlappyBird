@@ -140,11 +140,17 @@ class DQNCustomAgent(Agent):
 
     def fit_model(self, idx_max):
         minibatch = self.get_minibatch(idx_max)
+        state_train, target_f_train = np.zeros((BATCH_SIZE, self.obs_shape, 1)), \
+                                      np.zeros((BATCH_SIZE, 1, ANGLE_ACTION_POSSIBILITIES, SPEED_ACTION_POSSIBILITIES))
+        i = 0
         for (state, action, reward, next_state) in minibatch:
             target = reward + GAMMA * np.amax(self.model.predict(next_state))
             target_f = self.model.predict(state)
             target_f[:, :, int(action[0]), int(action[1])] = target
-            self.model.fit(state, target_f, epochs=1, verbose=0)
+            state_train[i] = state
+            target_f_train[i] = target_f
+            i += 1
+        self.model.fit(state, target_f, epochs=1, verbose=1)
         if self.eps > EPS_MIN:
             self.eps *= EPS_DECAY
 
