@@ -5,6 +5,7 @@ import numpy as np
 
 from alife.rl.agent import Agent
 from define_model import *
+from post_process import save_model
 
 
 class DQNCustomAgent(Agent):
@@ -180,5 +181,10 @@ class DQNCustomAgent(Agent):
         header = [("X%d" % j) for j in range(self.log.shape[1])]
         header[-1] = "reward"
         fname = log_path + ("/%d-%s-G%d.log" % (obj_ID, self.__class__.__name__, self.generation))
-        savetxt(fname, self.log[0:self.t, :], fmt='%4.3f', delimiter=',', header=','.join(header), comments='')
+        np.savetxt(fname, self.log[0:self.t, :], fmt='%4.3f', delimiter=',', header=','.join(header), comments='')
         print("Saved log to '%s'." % fname)
+        save_model(self.model,
+                   model_json_filename=MODEL_ALIFE_FOLDER+"/%d-%s-G%d.json" %
+                                                          (obj_ID, self.__class__.__name__, self.generation),
+                   model_weights_filename=MODEL_ALIFE_FOLDER+"/%d-%s-G%d.h5" %
+                                                          (obj_ID, self.__class__.__name__, self.generation))
