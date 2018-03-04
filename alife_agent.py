@@ -35,7 +35,7 @@ class DQNCustomAgent(Agent):
         self.generation = gen
         self.memory = 100
         self.eps = EPS_MAX
-        self.log = zeros((self.memory, self.obs_space.shape[0]+3))
+        self.log = zeros((self.memory, self.obs_space.shape[0] + 3))
         self.t = 0
 
     def __str__(self):
@@ -68,6 +68,18 @@ class DQNCustomAgent(Agent):
         if self.t % len(self.log) == 0:
             self.model.fit()
 
+        a = self.eps_policy(obs)
+        # ... and clip to within the bounds of action the space.
+        a = self.get_true_action_value(a)
+
+        # More logging ...
+        self.log[self.t, D:-1] = a
+
+        # Return
+        return a
+
+    def eps_policy(self, obs):
+        D = self.obs_space.shape[0]
         a = [0, 0]
         if random() > self.eps:
             actions = self.model.predict(obs.reshape((1, D, 1))).reshape(ANGLE_SHAPE, SPEED_SHAPE)
@@ -75,18 +87,15 @@ class DQNCustomAgent(Agent):
         else:
             a[0] = randint(0, ANGLE_SHAPE)
             a[1] = randint(0, SPEED_SHAPE)
-        self.eps = max(EPS_DECAY*self.eps, EPS_MIN)
-        # ... and clip to within the bounds of action the space.
-        a[0] = (a[0]*ANGLE_STEP - 45)* pi / 180.0
+        self.eps = max(EPS_DECAY * self.eps, EPS_MIN)
+        return a
+
+    def get_true_action_value(self, a):
+        a[0] = (a[0] * ANGLE_STEP - 45) * pi / 180.0
         a[0] = clip(a[0], self.act_space.low[0], self.act_space.high[0])
 
-        a[1] = a[1]*SPEED_STEP - 10
+        a[1] = a[1] * SPEED_STEP - 10
         a[1] = clip(a[1], self.act_space.low[1], self.act_space.high[1])
-
-        # More logging ...
-        self.log[self.t, D:-1] = a
-
-        # Return
         return a
 
     def spawn_copy(self):
