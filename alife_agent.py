@@ -1,12 +1,12 @@
 from numpy import *
+from math import pi
 
-from rl.agents.dqn import DQNAgent
+from alife.rl.agent import Agent
 from define_model import *
-from constants import *
 
 
-class DQNCustomAgent(DQNAgent):
-    def __init__(self, obs_space, act_space, gen=1):
+class DQNCustomAgent(Agent):
+    def __init__(self, obs_space, act_space, gen=1, complete_model=None):
         """
             Init.
 
@@ -27,15 +27,19 @@ class DQNCustomAgent(DQNAgent):
 
         if gen == 1:
             pre_trained_model = load_model('models/model_preprocessed_images.')
-            complete_model = adapt_model_to_alife(pre_trained_model, input_shape=obs_space.shape)
+            complete_model = adapt_model_to_alife(pre_trained_model, input_shape=(obs_space.shape[0], 1))
 
         self.model = complete_model
         # self.dqn = get_agent_from_model(self.model, act_space.shape[0], SHRUNKEN_SHAPE)
         self.generation = gen
+        self.memory = 100
+        self.eps = EPS_MAX
+        self.log = zeros((self.memory, self.obs_space.shape[0]+3))
+        self.t = 0
 
     def __str__(self):
         ''' Return a string representation (e.g., a label) for this agent '''
-        return "Evolver: Gen %d" % (self.generation)
+        return "DQN Agent: Gen %d" % self.generation
 
     def act(self, obs, reward, done=False):
         """
@@ -58,13 +62,19 @@ class DQNCustomAgent(DQNAgent):
         # Save some info to a log
         D = self.obs_space.shape[0]
         self.log[self.t, 0:D] = obs
+        print(obs)
         self.log[self.t, -1] = reward
+        if self.t % len(self.log == 0):
+            self.model.fit()
         self.t = (self.t + 1) % len(self.log)
 
-        # No learning, just a simple linear reflex,
-        self.model.fit()
+        actions = self.model.predict(obs.reshape((1, D, 1))).reshape(ANGLE_SHAPE, SPEED_SHAPE)
+        a = list(unravel_index(argmax(actions), actions.shape))
         # ... and clip to within the bounds of action the space.
+        a[0] = (a[0]*ANGLE_STEP - 45)* pi / 180.0
         a[0] = clip(a[0], self.act_space.low[0], self.act_space.high[0])
+
+        a[1] = a[1]*SPEED_STEP - 10
         a[1] = clip(a[1], self.act_space.low[1], self.act_space.high[1])
 
         # More logging ...

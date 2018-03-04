@@ -35,21 +35,21 @@ def get_cnn_model(input_shape=INPUT_SHAPE_CNN, nb_actions=2):
 def get_agent_from_model(model, nb_actions, input_shape):
     memory = SequentialMemory(limit=50000, window_length=WINDOW_LENGTH)
     processor = AtariProcessor(input_shape=input_shape, preprocess_images=PREPROCESS)
-    policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1., value_min=.1, value_test=.05,
-                                  nb_steps=1000000)
+    policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=EPS_MAX, value_min=EPS_MIN,
+                                  value_test=EPS_TEST, nb_steps=1000000)
     dqn = DQNAgent(model=model, nb_actions=nb_actions, policy=policy, memory=memory, processor=processor,
-                   nb_steps_warmup=50000, gamma=.99, target_model_update=10000, train_interval=4, delta_clip=1.)
-    dqn.compile(Adam(lr=.00025), metrics=['mae'])
+                   nb_steps_warmup=50000, gamma=GAMMA, target_model_update=10000, train_interval=4, delta_clip=1.)
+    dqn.compile(Adam(lr=LEARNING_RATE), metrics=['mae'])
     return dqn
 
 
-def adapt_model_to_alife(model, input_shape=(10,), vision_shape=(1, 3, 3), energy_shape=(1, 1, 1)):
+def adapt_model_to_alife(model, input_shape=(10, 1), vision_shape=(1, 3, 3), energy_shape=(1, 1, 1)):
     bug_input = Input(shape=input_shape)
 
     model_vision = Sequential()
     model_vision.add(Cropping1D(cropping=(0, 1), input_shape=input_shape))
     model_vision.add(Reshape(target_shape=vision_shape))
-    model_vision.add(Conv2DTranspose(4, (SHRUNKEN_SHAPE[0], int(SHRUNKEN_SHAPE[1] / 2 - 1)),
+    model_vision.add(Conv2DTranspose(4, (SHRUNKEN_SHAPE[0], int(SHRUNKEN_SHAPE[1] / 2) - 1),
                                      input_shape=vision_shape, padding='valid'))
     model_vision.add(Permute((3, 1, 2)))
     vision_out = model_vision(bug_input)
@@ -57,7 +57,7 @@ def adapt_model_to_alife(model, input_shape=(10,), vision_shape=(1, 3, 3), energ
     model_energy = Sequential()
     model_energy.add(Cropping1D(cropping=(9, 0), input_shape=input_shape))
     model_energy.add(Reshape(target_shape=energy_shape))
-    model_energy.add(Conv2DTranspose(4, (SHRUNKEN_SHAPE[0], int(SHRUNKEN_SHAPE[1] / 2 - 1)),
+    model_energy.add(Conv2DTranspose(4, (SHRUNKEN_SHAPE[0], int(SHRUNKEN_SHAPE[1] / 2) - 1),
                                      input_shape=energy_shape, padding='valid'))
     model_energy.add(Permute((3, 1, 2)))
     energy_out = model_energy(bug_input)
@@ -66,7 +66,7 @@ def adapt_model_to_alife(model, input_shape=(10,), vision_shape=(1, 3, 3), energ
 
     model.pop()
     model.add(Reshape((1, 512, 1)))
-    model.add(Conv2D(int(21 / SPEED_STEP), (1, 512 - int(360 / ANGLE_STEP) + 1), name='conv_2d_alife'))
+    model.add(Conv2D(SPEED_SHAPE, (1, 512 - ANGLE_SHAPE + 1), name='conv_2d_alife'))
 
     output = model(merged_tensor)
 

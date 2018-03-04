@@ -1,0 +1,2 @@
+alife.rl.evolution:Evolver
+alife_agent:DQNCustomAgent
