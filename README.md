@@ -21,7 +21,11 @@ We model this set of states, actions and rewards, as a Markov decision process.
 
 We keep in memory a set of former games, as tuples of (*state, action, discounted reward*) with a discount rate 0.99 for experiments.
 
+At any given time, our agent tries to evaluate the reward it will achieve with both actions, using what we call a Deep Q-Network:
+
 [![Demo CountPages alpha](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/Deep%20Q-Network.png)](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/paper.pdf)
+
+In traditional Q-Learning, agents try to evaluate this Q-function based on previous experiments that crossed the same state. As our state-space is extremely large, here we try to *generalize* knowledge we acquired on similar states to evaluate the Q-function on a given state.
 
 # Pipeline
 
