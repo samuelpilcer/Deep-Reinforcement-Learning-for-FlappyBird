@@ -1,6 +1,6 @@
 # Deep-Reinforcement-Learning-for-FlappyBird
 
-We trained a Deep Reinforcement Learning model to play FlappyBird, using screens as inputs. The model receives the game's screen and decides whether the bird should fly or fall. It achieves a higher average performance than human players.
+We trained a Artificial Intelligence model to play FlappyBird with images as inputs. The model receives the game's screen and decides whether the bird should fly or fall. It achieves a higher average performance than human players.
 
 # Demo
 
@@ -32,9 +32,9 @@ At any given time, our agent tries to evaluate the reward it will achieve with b
 
 In traditional Q-Learning, agents try to evaluate this Q-function based on previous experiments that crossed the same state. As our state-space is extremely large, here we try to *generalize* knowledge we acquired on similar states to evaluate the Q-function on a given state.
 
-# Pipeline
+Our agent needs to be able to analyze the image and, without any prior knowledge besides interaction with its environment, to learn strategies that enable the bird to pass obstacles. We thus needed a model able to learn features on an image, such as the distance (altitude/longitude) between the bird and the next pipe, and to process these features in order to predict Q-values. We used the following model introduced in Google's paper Playing Atari with Deep Reinforcement Learning (https://arxiv.org/pdf/1312.5602v1.pdf):
 
-We used the model introduced in Google's paper Playing Atari with Deep Reinforcement Learning (https://arxiv.org/pdf/1312.5602v1.pdf) 
+[![Demo CountPages alpha](https://image.slidesharecdn.com/deep-learning-lispnyc-june-2017-170625181139/95/deep-learning-59-638.jpg?cb=1498414658)](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/paper.pdf)
 
 # Requirements
 
