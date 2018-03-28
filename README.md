@@ -34,7 +34,14 @@ In traditional Q-Learning, agents try to evaluate this Q-function based on previ
 
 Our agent needs to be able to analyze the image and, without any prior knowledge besides interaction with its environment, to learn strategies that enable the bird to pass obstacles. We thus needed a model able to learn features on an image, such as the distance (altitude/longitude) between the bird and the next pipe, and to process these features in order to predict Q-values. We used the following model introduced in Google's paper Playing Atari with Deep Reinforcement Learning (https://arxiv.org/pdf/1312.5602v1.pdf):
 
-[![Demo CountPages alpha](https://image.slidesharecdn.com/deep-learning-lispnyc-june-2017-170625181139/95/deep-learning-59-638.jpg?cb=1498414658)](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/paper.pdf)
+[![Demo CountPages alpha](https://media.springernature.com/m685/nature-static/assets/v1/image-assets/nature14236-f1.jpg)](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/paper.pdf)
+
+# The exploration and exploitation dilemma
+
+
+# Experience replay
+
+
 
 # Requirements
 
