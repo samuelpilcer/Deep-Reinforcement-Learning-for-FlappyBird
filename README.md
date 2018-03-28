@@ -98,11 +98,6 @@ In order to stabilize over time the Q−values given by the approximation of the
 
 The neural network being initialized randomly, it initially acts following a random policy and then will be improved by training until it finds a successful strategy. But the first successful strategy isnt necessarily the best one. The question the network should address is : should I exploit the known working strategy or explore other, that may be better strate- gies? In fact, the first strategy is greedy as it sticks with the first effective type of policy it discovers.
 
-In order to avoid this problem of sticking with a non- really-effective strategy, we use ε-greedy exploration: with probability ε choose a random action, otherwise choose the action that maximises the Q−function. In our model, just as in Deepmind’s model, ε value decreases linearly over iterations from 1 (random actions) to 0.1.
+In order to avoid this problem of sticking with a non- really-effective strategy, we use ε-greedy exploration: with probability ε choose a random action, otherwise choose the action that maximises the Q−function. In our model, just as in Deepmind’s model, ε value decreases linearly over iterations from 1 (random actions) to 0.1. The point is to ensure that we don't stick with non-really-effective strategies learnt at the beginning of the game.
 
-This way we ensure to avoid sticking with non-really- effective strategies. However, 
-
-
-# Improvements
-
-
+However, learning curves' stagnation during the first 10,000 games suggests that we don't even find effective strategies before ε becomes lower than 0.2/0.3. A good strategy to pass pipes includes that we fly only every 5 to 10 steps. A possible improvement would be to test a linear-annealed policy from 0.3 or 0.4 to 0.1.
