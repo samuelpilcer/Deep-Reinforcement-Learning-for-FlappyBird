@@ -36,13 +36,20 @@ Our agent needs to be able to analyze the image and, without any prior knowledge
 
 [![Demo CountPages alpha](https://media.springernature.com/m685/nature-static/assets/v1/image-assets/nature14236-f1.jpg)](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/paper.pdf)
 
+Our agent plays games, and keeps the rewards achieved for every (*state, action*) in memory. Every 10,000 iterations, we take a batch of previous experiences and the reward associated and use them to train the convolutional neural network used for Q-value prediction.
+
+
 # Image preprocessing
 
-
-# The exploration and exploitation dilemma
+To make training faster, we built a complex preprocessing method. We found a way to erase the background image and to keep only the bird, pipes and the ground, with binary features. Our idea was that these preprocessed images would make bird detection easier (just have to find a circular zone where pixels are equal to 1) and that it would enable the model to learn easily the distance between the bird and the pipe, the altitude difference, etc.
 
 
 # Experience replay
+
+In order to stabilize over time the Q −values given by the approximation of the Q−function, we used the technique of experience replay introduced by Deepmind [3]. Experience replay consists of storing a defined number of the last experiences in a replay memory and to randomly use them when running the gradient descent algorithm that trains the neural network. This process of experience replay might reduce oscillations as we train our network not only on recent observations/rewards, but also on data that we randomly sample in the agent’s memory. We train our model on batches of data that might represent many past behaviors.
+
+
+# The exploration/exploitation dilemma
 
 
 # Improvements
