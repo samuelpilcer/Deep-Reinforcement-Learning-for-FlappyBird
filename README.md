@@ -1,6 +1,6 @@
 # Deep-Reinforcement-Learning-for-FlappyBird
 
-We trained a Artificial Intelligence model to play FlappyBird with images as inputs. The model receives the game's screen and decides whether the bird should fly or fall. It achieves a higher average performance than human players.
+We trained a Artificial Intelligence to play FlappyBird with images as inputs. The model receives the game's screen and decides whether the bird should fly or fall. It achieves a higher average performance than human players.
 
 # Demo
 
