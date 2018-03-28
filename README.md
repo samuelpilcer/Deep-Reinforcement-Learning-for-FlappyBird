@@ -17,7 +17,7 @@ These actions can result in negative reward (the bird crashes before the first o
 
 We model this set of states, actions and rewards, as a Markov decision process. Each game, can be represented as a finite sequence of states si, actions ai, rewards ri :
 
-	s0, a0, r0, s1, a1, r1, ..., sn, an, rn
+	*s0, a0, r0, s1, a1, r1, ..., s_{n}, a_{n}, $r_{n}$*
 
 # Deep Q-Learning
 
