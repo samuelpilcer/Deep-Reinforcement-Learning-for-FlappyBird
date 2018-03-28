@@ -2,6 +2,19 @@
 
 We trained a Deep Reinforcement Learning model to play FlappyBird, using screens as inputs. The model receives the game's screen and decides whether the bird should fly or fall. It achieves a higher average performance than human players.
 
+# Analysis
+
+One can find our report's pre-print at the following link: https://www.researchgate.net/profile/Louis_Samuel_Pilcer/publication/324066514_Playing_Flappy_Bird_with_Deep_Reinforcement_Learning/links/5abbc2230f7e9bfc045592df/Playing-Flappy-Bird-with-Deep-Reinforcement-Learning.pdf
+
+# Environment
+
+At a given time the environment is in a given state (location and direction of the bird, location of pipes...) that translates into a 512x288 pixels colored image. At any time the agent can perform two types of actions:
+
+	$ a=0: do nothing
+	$ a=1:fly.
+
+These actions can result in negative reward (the bird crashes before the first obstacle) or in positive rewards (the bird passes some obstacles and crashes between the reward and the reward+1 obstacle) at the end of the game. Positive rewards are based on the number of obstacles the bird passes. When the agent performs any action, the environment changes, leading to a new state.
+
 # Deep Q-Learning
 
 We keep in memory former 
