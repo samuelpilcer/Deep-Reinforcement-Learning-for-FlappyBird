@@ -52,7 +52,7 @@ We trained our model with 1,500,000 iterations (almost 18,000 games). It took 17
 
 # Analysis
 
-One can find our report's pre-print at the following link: https://www.researchgate.net/profile/Louis_Samuel_Pilcer/publication/324066514_Playing_Flappy_Bird_with_Deep_Reinforcement_Learning/links/5abbc2230f7e9bfc045592df/Playing-Flappy-Bird-with-Deep-Reinforcement-Learning.pdf
+One can find a paper (pre-print version) that explains our method, why it performs and things one could improve, at the following link: https://www.researchgate.net/profile/Louis_Samuel_Pilcer/publication/324066514_Playing_Flappy_Bird_with_Deep_Reinforcement_Learning/links/5abbc2230f7e9bfc045592df/Playing-Flappy-Bird-with-Deep-Reinforcement-Learning.pdf.
 
 # Environment
 
@@ -79,12 +79,14 @@ Our agent needs to be able to analyze the image and, without any prior knowledge
 
 [![Demo CountPages alpha](https://media.springernature.com/m685/nature-static/assets/v1/image-assets/nature14236-f1.jpg)](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/paper.pdf)
 
+This network is inspired by others that perform well on Computer Vision problems (http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf, https://www.nvidia.cn/content/tesla/pdf/machine-learning/imagenet-classification-with-deep-convolutional-nn.pdf). The architecture helps the agent learn from experience ways to build abstract features on input images (convolutional layers), and to compose these features in order to understand how good the current position is / would be depending on the action it takes (dense layers).
+
 Our agent plays games, and keeps the rewards achieved for every (*state, action*) in memory. Every 10,000 iterations, we take a batch of previous experiences and the reward associated and use them to train the convolutional neural network used for Q-value prediction.
 
 
 # Image preprocessing
 
-To make training faster, we built a complex preprocessing method. We found a way to erase the background image and to keep only the bird, pipes and the ground, with binary features. Our idea was that these preprocessed images would make bird detection easier (just have to find a circular zone where pixels are equal to 1) and that it would enable the model to learn easily the distance between the bird and the pipe, the altitude difference, etc.
+To make training faster, we built a preprocessing method thas consists on erasing the background image and keeping only the bird, pipes and the ground, with binary features. Our idea was that these preprocessed images would make bird detection easier (just have to find a circular zone where pixels are equal to 1) and that it would enable the model to learn easily the distance between the bird and the pipe, the altitude difference, etc.
 
 
 # Experience replay
