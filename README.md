@@ -15,13 +15,11 @@ At a given time the environment is in a given state (location and direction of t
 
 These actions can result in negative reward (the bird crashes before the first obstacle) or in positive rewards (the bird passes some obstacles and crashes between the reward and the reward+1 obstacle) at the end of the game. Positive rewards are based on the number of obstacles the bird passes. When the agent performs any action, the environment changes, leading to a new state.
 
-We model this set of states, actions and rewards, as a Markov decision process. Each game, can be represented as a finite sequence of states si, actions ai, rewards ri :
-
-	*s0, a0, r0, s1, a1, r1, ..., s_{n}, a_{n}, $r_{n}$*
+We model this set of states, actions and rewards, as a Markov decision process.
 
 # Deep Q-Learning
 
-We keep in memory former 
+We keep in memory a set of former games, as tuples of (*state, action, discounted reward*) with a discount rate 0.99 for experiments.
 
 [![Demo CountPages alpha](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/Deep%20Q-Network.png)](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/paper.pdf)
 
