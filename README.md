@@ -14,7 +14,32 @@ We used the model introduced in Google's paper Playing Atari with Deep Reinforce
 
 # Requirements
 
+You require to install not only the Python dependencies, but also PyGame and GymPLE, PyGame's adaptation for Gym environments.
 
+To install PLE:
+
+	$ git clone https://github.com/ntasfi/PyGame-Learning-Environment.git
+	$ cd PyGame-Learning-Environment/
+	$ pip install -e .
+
+To install PyGame on OSX:
+
+	$ brew install sdl sdl_ttf sdl_image sdl_mixer portmidi  # brew or use equivalent means
+	$ conda install -c https://conda.binstar.org/quasiben pygame  # using Anaconda
+
+On Ubuntu 14.04:
+
+	$ apt-get install -y python-pygame
+
+More configurations and installation details on: http://www.pygame.org/wiki/GettingStarted#Pygame%20Installation
+
+
+
+And finally clone and install this package
+
+	$ git clone https://github.com/lusob/gym-ple.git
+	$ cd gym-ple/
+	$ pip install -e .
 
 # Run a demo
 
