@@ -2,6 +2,11 @@
 
 We trained a Deep Reinforcement Learning model to play FlappyBird, using screens as inputs. The model receives the game's screen and decides whether the bird should fly or fall. It achieves a higher average performance than human players.
 
+# Demo
+
+[![Demo CountPages alpha](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/Artificial_Intelligence_playing_FlappyBird.gif)](https://www.youtube.com/watch?v=Tf8SVv1nPxM)
+
+
 # Analysis
 
 One can find our report's pre-print at the following link: https://www.researchgate.net/profile/Louis_Samuel_Pilcer/publication/324066514_Playing_Flappy_Bird_with_Deep_Reinforcement_Learning/links/5abbc2230f7e9bfc045592df/Playing-Flappy-Bird-with-Deep-Reinforcement-Learning.pdf
@@ -74,7 +79,3 @@ And finally clone and install this package
 We trained our model with 1,500,000 iterations (almost 18,000 games). It took 17 hours on a G3 AWS instance (NVIDIA Tesla M60 GPUs). Here is the learning curve we get (reward as a function of the number of games played):
 
 [![Demo CountPages alpha](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/Learning%20curve.png)](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/paper.pdf)
-
-# Demo
-
-[![Demo CountPages alpha](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/Artificial_Intelligence_playing_FlappyBird.gif)](https://www.youtube.com/watch?v=Tf8SVv1nPxM)
