@@ -10,8 +10,8 @@ One can find our report's pre-print at the following link: https://www.researchg
 
 At a given time the environment is in a given state (location and direction of the bird, location of pipes...) that translates into a 512x288 pixels colored image. At any time the agent can perform two types of actions:
 
-	$ a=0: do nothing
-	$ a=1:fly.
+	a=0: do nothing
+	a=1:fly.
 
 These actions can result in negative reward (the bird crashes before the first obstacle) or in positive rewards (the bird passes some obstacles and crashes between the reward and the reward+1 obstacle) at the end of the game. Positive rewards are based on the number of obstacles the bird passes. When the agent performs any action, the environment changes, leading to a new state.
 
