@@ -36,10 +36,16 @@ Our agent needs to be able to analyze the image and, without any prior knowledge
 
 [![Demo CountPages alpha](https://media.springernature.com/m685/nature-static/assets/v1/image-assets/nature14236-f1.jpg)](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/paper.pdf)
 
+# Image preprocessing
+
+
 # The exploration and exploitation dilemma
 
 
 # Experience replay
+
+
+# Improvements
 
 
 
@@ -83,6 +89,6 @@ And finally clone and install this package
 
     $ python scripts/training_with_preprocessing.py
 
-We trained our model with 1,500,000 iterations (almost 18,000 games). It took 17 hours on a G3 AWS instance (NVIDIA Tesla M60 GPUs). Here is the learning curve we get (reward as a function of the number of games played):
+We trained our model with 1,500,000 iterations (almost 18,000 games). It took 17 hours on a G3 AWS instance (NVIDIA Tesla M60 GPUs). Here is the learning curve we get (average reward as a function of the number of games played):
 
 [![Demo CountPages alpha](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/Learning%20curve.png)](https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/paper.pdf)
