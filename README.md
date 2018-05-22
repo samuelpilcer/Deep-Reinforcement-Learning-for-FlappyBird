@@ -52,7 +52,7 @@ We trained our model with 1,500,000 iterations (almost 18,000 games). It took 17
 
 # Analysis
 
-One can find a paper (pre-print version) that explains our method, why it performs and things one could improve, at the following link: https://www.researchgate.net/profile/Louis_Samuel_Pilcer/publication/324066514_Playing_Flappy_Bird_with_Deep_Reinforcement_Learning/links/5abbc2230f7e9bfc045592df/Playing-Flappy-Bird-with-Deep-Reinforcement-Learning.pdf.
+One can find a paper (pre-print version) that explains our method, why it performs and things one could improve, at the following link: https://github.com/samuelpilcer/Deep-Reinforcement-Learning-for-FlappyBird/blob/master/experiment/paper.pdf.
 
 # Environment
 
